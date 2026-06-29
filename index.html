@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Dammusi">
+<title>Planning Dammusi</title>
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #1f1f1f;
+    --ink-soft: #6b6b6b;
+    --line: #ececec;
+    --line-strong: #d8d8d8;
+    --today: #c46a3f;
+
+    --c-limone: #fff2a8;
+    --c-limone-ink: #6b5800;
+    --c-lentisco-g: #a8e8c4;
+    --c-lentisco-g-ink: #1f5a3a;
+    --c-lentisco-p: #fbd2e8;
+    --c-lentisco-p-ink: #7a2a55;
+    --c-palma: #fcd9a8;
+    --c-palma-ink: #7a4a10;
+    --c-fico-g: #bcd6ff;
+    --c-fico-g-ink: #1a3a7a;
+    --c-fico-p: #d9c8fb;
+    --c-fico-p-ink: #4a2a85;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 20px 16px 100px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    max-width: 1500px;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .title-block .eyebrow {
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+
+  .title-block h1 {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .title-block h1 .month { }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    background: white;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .btn:active { background: #f5f5f5; }
+  .btn.primary { background: var(--ink); color: white; border-color: var(--ink); }
+  .btn.primary:active { background: #000; }
+  .btn.danger { color: #b22; border-color: #f0c4c4; }
+  .btn.subtle { background: transparent; border-color: transparent; color: var(--ink-soft); padding: 8px 10px; }
+
+  .legend {
+    max-width: 1500px;
+    margin: 0 auto 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ink);
+  }
+
+  .chip-swatch { width: 18px; height: 12px; border-radius: 2px; }
+
+  .scroll-wrap {
+    max-width: 1500px;
+    margin: 0 auto;
+    overflow-x: auto;
+    overflow-y: visible;
+    border: 1px solid var(--line);
+    background: white;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: max-content;
+    font-size: 12px;
+    table-layout: fixed;
+  }
+
+  col.label-col { width: 150px; }
+  col.day-col { width: 36px; }
+
+  thead th {
+    background: white;
+    font-weight: 400;
+    color: var(--ink-soft);
+    font-size: 10px;
+    padding: 8px 0 6px;
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+
+  thead th.weekend { background: #fafafa; }
+  thead th.month-start { border-left: 1px solid var(--line-strong); }
+  thead th.today { background: #fff4ec; }
+
+  thead .day-num {
+    display: block;
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.1;
+  }
+
+  thead .day-name {
+    display: block;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+    color: var(--ink-soft);
+  }
+
+  thead .month-tag {
+    display: block;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    font-weight: 600;
+    margin-top: 3px;
+  }
+
+  thead th.today .day-num { color: var(--today); font-weight: 700; }
+
+  th.corner {
+    text-align: left;
+    padding: 8px 14px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    border-right: 1px solid var(--line);
+    position: sticky;
+    left: 0;
+    z-index: 4;
+    background: white;
+  }
+
+  th.row-label {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 2;
+    text-align: left;
+    padding: 0 14px;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--ink);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  tbody tr { height: 44px; }
+
+  tbody td {
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid #f5f5f5;
+    padding: 0;
+    position: relative;
+  }
+
+  tbody td.weekend { background: #fafafa; }
+  tbody td.month-start { border-left: 1px solid var(--line-strong); }
+  tbody td.today { background: rgba(196, 106, 63, 0.06); }
+
+  /* trait vertical aujourd'hui : traverse tout le tableau */
+  .scroll-wrap { position: relative; }
+  .today-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: var(--today);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .booking {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    z-index: 1;
+    clip-path: polygon(
+      var(--tri, 16px) 0,
+      100% 0,
+      calc(100% - var(--tri, 16px)) 100%,
+      0 100%
+    );
+    padding-left: calc(var(--tri, 16px) + 4px);
+    padding-right: calc(var(--tri, 16px) + 4px);
+    cursor: pointer;
+  }
+
+  body.read-only .booking { cursor: default; }
+  body.read-only .fab-add { display: none; }
+
+  .booking .duration {
+    font-size: 11px;
+    opacity: 0.7;
+    font-weight: 400;
+    margin-left: 12px;
+  }
+
+  .booking.limone { background: var(--c-limone); color: var(--c-limone-ink); }
+  .booking.lentisco-grande { background: var(--c-lentisco-g); color: var(--c-lentisco-g-ink); }
+  .booking.lentisco-piccolo { background: var(--c-lentisco-p); color: var(--c-lentisco-p-ink); }
+  .booking.palma { background: var(--c-palma); color: var(--c-palma-ink); }
+  .booking.fico-grande { background: var(--c-fico-g); color: var(--c-fico-g-ink); }
+  .booking.fico-piccolo { background: var(--c-fico-p); color: var(--c-fico-p-ink); }
+
+  /* Bouton flottant aujourd'hui */
+  .fab-today {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 10;
+    -webkit-appearance: none;
+    appearance: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .fab-today:active { background: #000; }
+
+  /* Bouton + ajouter */
+  .fab-add {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    background: var(--today);
+    color: white;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    font-size: 28px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    z-index: 10;
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 1;
+    font-weight: 300;
+  }
+  .fab-add:active { transform: scale(0.95); }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 380px;
+    padding: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .field input, .field select {
+    width: 100%;
+    padding: 12px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 16px; /* éviter zoom iOS */
+    background: white;
+    color: var(--ink);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--ink);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .modal-actions .left { display: flex; gap: 8px; }
+  .modal-actions .right { display: flex; gap: 8px; }
+
+  footer {
+    max-width: 1500px;
+    margin: 18px auto 0;
+    color: var(--ink-soft);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 14px 10px 100px; }
+    col.label-col { width: 110px; }
+    col.day-col { width: 32px; }
+    .title-block h1 { font-size: 22px; }
+    .legend { gap: 10px; }
+    .chip { font-size: 11px; }
+    th.row-label { padding: 0 10px; font-size: 12px; }
+  }</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <div class="eyebrow">Pantelleria</div>
+    <h1>Planning <span class="month" id="title-month"></span></h1>
+  </div>
+</header>
+
+<div class="legend">
+  <span class="chip"><span class="chip-swatch" style="background: var(--c-limone)"></span>Limone</span>
+  <span class="chip"><span class="chip-swatch" style="background: var(--c-palma)"></span>Palma</span>
+  <span class="chip"><span class="chip-swatch" style="background: var(--c-lentisco-g)"></span>Lentisco Grande</span>
+  <span class="chip"><span class="chip-swatch" style="background: var(--c-lentisco-p)"></span>Lentisco Piccolo</span>
+  <span class="chip"><span class="chip-swatch" style="background: var(--c-fico-g)"></span>Fico Grande</span>
+  <span class="chip"><span class="chip-swatch" style="background: var(--c-fico-p)"></span>Fico Piccolo</span>
+</div>
+
+<div class="scroll-wrap" id="scroll-wrap">
+  <table id="planning">
+    <colgroup id="colgroup"></colgroup>
+    <thead><tr id="header-row"></tr></thead>
+    <tbody id="body-rows"></tbody>
+  </table>
+</div>
+
+<footer>
+  <span id="footer-date"></span>
+  <span id="sync-status" style="margin-left: 10px; font-size: 10px;"></span>
+</footer>
+
+<button class="fab-today" id="btn-today">Aujourd'hui</button>
+<button class="fab-add" id="btn-add" title="Ajouter un séjour">+</button>
+
+<!-- Modal séjour -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Nouveau séjour</h2>
+    <div class="field">
+      <label>Invité(s)</label>
+      <input type="text" id="f-name" placeholder="ex. Mathilde &amp; Pierre-Charles" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Dammuso</label>
+      <select id="f-row">
+        <option value="limone">🍋 Limone</option>
+        <option value="palma">🌴 Palma</option>
+        <option value="lentisco-grande">🌿 Lentisco Grande</option>
+        <option value="lentisco-piccolo">🌱 Lentisco Piccolo</option>
+        <option value="fico-grande">🌵 Fico Grande</option>
+        <option value="fico-piccolo">🌾 Fico Piccolo</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Arrivée</label>
+        <input type="date" id="f-start">
+      </div>
+      <div class="field">
+        <label>Départ</label>
+        <input type="date" id="f-end">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <div class="left">
+        <button class="btn danger" id="btn-delete" style="display: none">Supprimer</button>
+      </div>
+      <div class="right">
+        <button class="btn" id="btn-cancel">Annuler</button>
+        <button class="btn primary" id="btn-save">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ============ CONFIG ============
+const WINDOW_DAYS_BEFORE = 10;
+const WINDOW_DAYS_AFTER = 10;
+// Plage totale rendue : 1er janvier 2026 → 5 ans après aujourd'hui
+const RANGE_START = new Date(2026, 0, 1);
+const RANGE_YEARS_AFTER_TODAY = 5;
+const DAY_COL_WIDTH = 36;
+
+const ROWS = [
+  { id: 'limone',           label: '🍋 Limone' },
+  { id: 'palma',            label: '🌴 Palma' },
+  { id: 'lentisco-grande',  label: '🌿 Lentisco Grande' },
+  { id: 'lentisco-piccolo', label: '🌱 Lentisco Piccolo' },
+  { id: 'fico-grande',      label: '🌵 Fico Grande' },
+  { id: 'fico-piccolo',     label: '🌾 Fico Piccolo' },
+];
+
+// ============ DATA ============
+const DEFAULT_BOOKINGS = [];
+
+// ============ CONFIG SYNC DISTANTE (jsonbin.io) ============
+const JSONBIN_ID = '6a42b682f5f4af5e29433172';
+const JSONBIN_KEY = '$2a$10$dDk.d6oZv4/1ODVFaBCUa.KspWCwbF8sXH0d.rfJ6hDID6IB6qOEu';
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+const READ_ONLY = false; // sera mis à true dans la version invités
+
+let bookings = DEFAULT_BOOKINGS.slice();
+let editingId = null;
+let syncStatus = 'loading'; // 'loading' | 'ok' | 'error'
+
+async function loadBookings() {
+  setSyncStatus('loading');
+  try {
+    const res = await fetch(`${JSONBIN_URL}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && data.record && Array.isArray(data.record.bookings)) {
+      bookings = data.record.bookings;
+    }
+    setSyncStatus('ok');
+  } catch (e) {
+    console.error('Erreur lecture jsonbin:', e);
+    setSyncStatus('error');
+    // fallback : essayer le cache localStorage
+    try {
+      const raw = localStorage.getItem('dammusi-bookings-cache');
+      if (raw) bookings = JSON.parse(raw);
+    } catch (err) {}
+  }
+}
+
+async function saveBookings() {
+  // mettre en cache local immédiatement
+  try {
+    localStorage.setItem('dammusi-bookings-cache', JSON.stringify(bookings));
+  } catch (e) {}
+  if (READ_ONLY) return;
+  setSyncStatus('loading');
+  try {
+    const res = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY,
+      },
+      body: JSON.stringify({ bookings })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    setSyncStatus('ok');
+  } catch (e) {
+    console.error('Erreur écriture jsonbin:', e);
+    setSyncStatus('error');
+  }
+}
+
+function setSyncStatus(status) {
+  syncStatus = status;
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  if (status === 'loading') {
+    el.textContent = '⟳';
+    el.title = 'Synchronisation…';
+    el.style.color = '#999';
+  } else if (status === 'ok') {
+    el.textContent = '●';
+    el.title = 'Synchronisé';
+    el.style.color = '#4caf50';
+  } else {
+    el.textContent = '✕';
+    el.title = 'Erreur de synchronisation';
+    el.style.color = '#e53935';
+  }
+}
+
+// Rafraîchir périodiquement depuis le serveur (pour voir les modifs des autres)
+async function refreshFromServer() {
+  if (syncStatus === 'loading') return; // éviter les chevauchements
+  try {
+    const res = await fetch(`${JSONBIN_URL}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.record && Array.isArray(data.record.bookings)) {
+      const newJson = JSON.stringify(data.record.bookings);
+      const oldJson = JSON.stringify(bookings);
+      if (newJson !== oldJson) {
+        bookings = data.record.bookings;
+        render();
+      }
+      setSyncStatus('ok');
+    }
+  } catch (e) {
+    setSyncStatus('error');
+  }
+}
+
+// ============ HELPERS ============
+const dayNames = ['DIM','LUN','MAR','MER','JEU','VEN','SAM'];
+const monthNames = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const monthShort = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+function isoDate(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function parseISO(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function dayDiff(a, b) {
+  const ma = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+  const mb = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+  return Math.round((mb - ma) / 86400000);
+}
+function uid() { return 'b' + Date.now() + Math.floor(Math.random() * 1000); }
+
+// ============ RENDER ============
+function getStartDate() {
+  return new Date(RANGE_START);
+}
+
+function getTotalDays() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const end = new Date(today);
+  end.setFullYear(today.getFullYear() + RANGE_YEARS_AFTER_TODAY);
+  return Math.round((end - RANGE_START) / 86400000) + 1;
+}
+
+function render() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const startDate = getStartDate();
+  const totalDays = getTotalDays();
+
+  // titre
+  document.getElementById('title-month').textContent = today.getFullYear();
+
+  // colgroup
+  const colgroup = document.getElementById('colgroup');
+  colgroup.innerHTML = '';
+  const labelCol = document.createElement('col');
+  labelCol.className = 'label-col';
+  colgroup.appendChild(labelCol);
+  for (let i = 0; i < totalDays; i++) {
+    const c = document.createElement('col');
+    c.className = 'day-col';
+    colgroup.appendChild(c);
+  }
+
+  // header
+  const headerRow = document.getElementById('header-row');
+  headerRow.innerHTML = '';
+  const corner = document.createElement('th');
+  corner.className = 'corner';
+  corner.textContent = 'Dammuso ╱ Date';
+  headerRow.appendChild(corner);
+
+  const dateColumns = [];
+  let todayIdx = -1;
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    dateColumns.push(d);
+
+    const th = document.createElement('th');
+    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+    const isMonthStart = d.getDate() === 1 || i === 0;
+    const isToday = d.getTime() === today.getTime();
+    if (isToday) todayIdx = i;
+
+    if (isWeekend) th.classList.add('weekend');
+    if (d.getDate() === 1) th.classList.add('month-start');
+    if (isToday) th.classList.add('today');
+
+    let html = `<span class="day-num">${d.getDate()}</span><span class="day-name">${dayNames[d.getDay()]}</span>`;
+    if (isMonthStart) html += `<span class="month-tag">${monthShort[d.getMonth()]}</span>`;
+    th.innerHTML = html;
+    headerRow.appendChild(th);
+  }
+
+  // body
+  const body = document.getElementById('body-rows');
+  body.innerHTML = '';
+
+  ROWS.forEach(r => {
+    const tr = document.createElement('tr');
+    const labelCell = document.createElement('th');
+    labelCell.className = 'row-label';
+    labelCell.textContent = r.label;
+    tr.appendChild(labelCell);
+
+    const dayCells = [];
+    for (let i = 0; i < totalDays; i++) {
+      const d = dateColumns[i];
+      const td = document.createElement('td');
+      if (d.getDay() === 0 || d.getDay() === 6) td.classList.add('weekend');
+      if (d.getDate() === 1) td.classList.add('month-start');
+      if (d.getTime() === today.getTime()) td.classList.add('today');
+      tr.appendChild(td);
+      dayCells.push(td);
+    }
+
+    const rowBookings = bookings.filter(b => b.row === r.id);
+    rowBookings.forEach(b => {
+      const bStart = parseISO(b.start);
+      const bEnd = parseISO(b.end);
+      const startIdx = Math.max(0, dayDiff(startDate, bStart));
+      const endIdx = Math.min(totalDays - 1, dayDiff(startDate, bEnd));
+      if (endIdx < 0 || startIdx >= totalDays) return;
+
+      const startCell = dayCells[startIdx];
+      const div = document.createElement('div');
+      div.className = `booking ${r.id}`;
+      div.dataset.id = b.id;
+      const span = endIdx - startIdx + 1;
+      const nights = dayDiff(bStart, bEnd);
+      div.style.left = '14px';
+      div.style.width = `calc(${span * 100}% + ${span - 1}px - 28px)`;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = b.name;
+      const durSpan = document.createElement('span');
+      durSpan.className = 'duration';
+      durSpan.textContent = nights + (nights > 1 ? ' nuits' : ' nuit');
+      div.appendChild(nameSpan);
+      div.appendChild(durSpan);
+      div.title = `${b.name} · ${bStart.getDate()} ${monthShort[bStart.getMonth()]} → ${bEnd.getDate()} ${monthShort[bEnd.getMonth()]} (${nights} nuits)`;
+
+      div.addEventListener('click', () => {
+        if (READ_ONLY) return;
+        openModalForEdit(b);
+      });
+
+      startCell.appendChild(div);
+    });
+
+    body.appendChild(tr);
+  });
+
+  // (plus de trait vertical aujourd'hui : la colonne reste juste légèrement teintée)
+
+  // scroll : centrer sur aujourd'hui (après que le layout soit fini)
+  scrollToTodayWhenReady();
+}
+
+function scrollToToday(smooth) {
+  const sw = document.getElementById('scroll-wrap');
+  const todayTh = document.querySelector('thead th.today');
+  if (!todayTh || !sw) return;
+  // Calcul direct
+  const swRect = sw.getBoundingClientRect();
+  const thRect = todayTh.getBoundingClientRect();
+  const currentScroll = sw.scrollLeft;
+  const targetScroll = currentScroll + (thRect.left - swRect.left) - (sw.clientWidth / 2) + (thRect.width / 2);
+  if (smooth) {
+    sw.scrollTo({ left: targetScroll, behavior: 'smooth' });
+  } else {
+    sw.scrollLeft = targetScroll;
+  }
+}
+
+// Attendre que le layout soit fini avant de scroller
+function scrollToTodayWhenReady() {
+  // tentatives multiples pour gérer iOS Safari / WebKit
+  scrollToToday(false);
+  requestAnimationFrame(() => {
+    scrollToToday(false);
+    setTimeout(() => scrollToToday(false), 100);
+    setTimeout(() => scrollToToday(false), 300);
+  });
+}
+
+// ============ MODAL ============
+const modal = document.getElementById('modal');
+const fName = document.getElementById('f-name');
+const fRow = document.getElementById('f-row');
+const fStart = document.getElementById('f-start');
+const fEnd = document.getElementById('f-end');
+const btnDelete = document.getElementById('btn-delete');
+
+function openModalForNew() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Nouveau séjour';
+  fName.value = '';
+  fRow.value = 'limone';
+  const today = new Date();
+  fStart.value = isoDate(today);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 7);
+  fEnd.value = isoDate(tomorrow);
+  btnDelete.style.display = 'none';
+  modal.classList.add('open');
+  setTimeout(() => fName.focus(), 100);
+}
+
+function openModalForEdit(b) {
+  editingId = b.id;
+  document.getElementById('modal-title').textContent = 'Modifier le séjour';
+  fName.value = b.name;
+  fRow.value = b.row;
+  fStart.value = b.start;
+  fEnd.value = b.end;
+  btnDelete.style.display = '';
+  modal.classList.add('open');
+}
+
+function closeModal() { modal.classList.remove('open'); }
+
+document.getElementById('btn-add').addEventListener('click', openModalForNew);
+document.getElementById('btn-cancel').addEventListener('click', closeModal);
+document.getElementById('btn-save').addEventListener('click', () => {
+  const name = fName.value.trim();
+  if (!name) { fName.focus(); return; }
+  const row = fRow.value;
+  const start = fStart.value;
+  const end = fEnd.value;
+  if (!start || !end) return;
+  if (parseISO(end) < parseISO(start)) {
+    alert('La date de départ doit être après la date d\'arrivée.');
+    return;
+  }
+  if (editingId) {
+    const b = bookings.find(x => x.id === editingId);
+    if (b) Object.assign(b, { name, row, start, end });
+  } else {
+    bookings.push({ id: uid(), name, row, start, end });
+  }
+  saveBookings();
+  closeModal();
+  render();
+});
+document.getElementById('btn-delete').addEventListener('click', () => {
+  if (!editingId) return;
+  if (!confirm('Supprimer ce séjour ?')) return;
+  bookings = bookings.filter(b => b.id !== editingId);
+  saveBookings();
+  closeModal();
+  render();
+});
+
+// (plus de gestion mot de passe : édition libre par défaut)
+
+// ============ BOUTON AUJOURD'HUI ============
+document.getElementById('btn-today').addEventListener('click', () => scrollToToday(true));
+
+// fermer modal au tap sur backdrop
+modal.addEventListener('click', e => {
+  if (e.target === modal) modal.classList.remove('open');
+});
+
+// ============ DATE DU JOUR DANS LE FOOTER ============
+function updateFooterDate() {
+  const d = new Date();
+  const formatted = d.toLocaleDateString('fr-FR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+  // Capitaliser la première lettre
+  document.getElementById('footer-date').textContent =
+    formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
+
+// ============ INIT ============
+(async function init() {
+  // Appliquer le mode lecture seule si demandé
+  if (READ_ONLY) {
+    document.body.classList.add('read-only');
+    const addBtn = document.getElementById('btn-add');
+    if (addBtn) addBtn.style.display = 'none';
+  }
+
+  await loadBookings();
+  render();
+  updateFooterDate();
+
+  // Refresh depuis le serveur toutes les 15 secondes (pour voir modifs des autres)
+  setInterval(refreshFromServer, 15000);
+
+  // Refresh quand l'utilisateur revient sur l'onglet
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshFromServer();
+  });
+})();
+
+// recharger si la page reste ouverte plusieurs jours
+let lastRenderDay = new Date().toDateString();
+setInterval(() => {
+  const t = new Date().toDateString();
+  if (t !== lastRenderDay) {
+    lastRenderDay = t;
+    render();
+    updateFooterDate();
+  }
+}, 60000);
+</script>
+
+</body>
+</html>
