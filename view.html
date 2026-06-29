@@ -647,7 +647,7 @@ function getTotalDays() {
   if (READ_ONLY) {
     // Viewer : 30 jours après aujourd'hui
     end = new Date(today);
-    end.setDate(today.getDate() + 45);
+    end.setDate(today.getDate() + 60);
   } else {
     // Admin : 5 ans dans le futur
     end = new Date(today);
